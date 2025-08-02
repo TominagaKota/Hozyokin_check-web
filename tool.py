@@ -1,85 +1,78 @@
-r"""Command-line tool to validate and pretty-print JSON
 
-Usage::
+import streamlit as st
+import re
+from PyPDF2 import PdfReader
+import pandas as pd
 
-    $ echo '{"json":"obj"}' | python -m json.tool
-    {
-        "json": "obj"
-    }
-    $ echo '{ 1.2:3.4}' | python -m json.tool
-    Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+st.title("補助金対象機器チェック＆金額試算ツール")
 
-"""
-import argparse
-import json
-import sys
-from pathlib import Path
+# 型番ごとの補助金・単価・補助率
+target_models = {
+    "RZRP160BA": [("省エネ補助金（国）", 500000, 1/3)],
+    "CS-EX280D": [("省エネ補助金（国）", 350000, 1/3),
+                  ("ゼロエミ補助金（東京都）", 350000, 2/3)],
+    "AY-L40H": [("住宅省エネ2024キャンペーン", 200000, 0.1)],
+    "RAS-X40H2": [("省エネ補助金（国）", 400000, 1/3)],
+    "MSZ-ZXV5623S": [("省エネ補助金（国）", 420000, 1/3)]
+}
 
+# 型番抽出用の正規表現
+def extract_models(text):
+    pattern = r"[A-Z]{2,}-?[A-Z0-9]+"
+    return re.findall(pattern, text)
 
-def main():
-    prog = 'python -m json.tool'
-    description = ('A simple command line interface for json module '
-                   'to validate and pretty-print JSON objects.')
-    parser = argparse.ArgumentParser(prog=prog, description=description)
-    parser.add_argument('infile', nargs='?',
-                        type=argparse.FileType(encoding="utf-8"),
-                        help='a JSON file to be validated or pretty-printed',
-                        default=sys.stdin)
-    parser.add_argument('outfile', nargs='?',
-                        type=Path,
-                        help='write the output of infile to outfile',
-                        default=None)
-    parser.add_argument('--sort-keys', action='store_true', default=False,
-                        help='sort the output of dictionaries alphabetically by key')
-    parser.add_argument('--no-ensure-ascii', dest='ensure_ascii', action='store_false',
-                        help='disable escaping of non-ASCII characters')
-    parser.add_argument('--json-lines', action='store_true', default=False,
-                        help='parse input using the JSON Lines format. '
-                        'Use with --no-indent or --compact to produce valid JSON Lines output.')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--indent', default=4, type=int,
-                       help='separate items with newlines and use this number '
-                       'of spaces for indentation')
-    group.add_argument('--tab', action='store_const', dest='indent',
-                       const='\t', help='separate items with newlines and use '
-                       'tabs for indentation')
-    group.add_argument('--no-indent', action='store_const', dest='indent',
-                       const=None,
-                       help='separate items with spaces rather than newlines')
-    group.add_argument('--compact', action='store_true',
-                       help='suppress all whitespace separation (most compact)')
-    options = parser.parse_args()
+# PDFからテキスト抽出
+def extract_text_from_pdf(file):
+    reader = PdfReader(file)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text()
+    return text
 
-    dump_args = {
-        'sort_keys': options.sort_keys,
-        'indent': options.indent,
-        'ensure_ascii': options.ensure_ascii,
-    }
-    if options.compact:
-        dump_args['indent'] = None
-        dump_args['separators'] = ',', ':'
+# 判定と金額試算（表形式）
+def check_model_table(model, quantity):
+    if model not in target_models:
+        return pd.DataFrame([{
+            "型番": model,
+            "補助金名": "対象外",
+            "定価（円）": "-",
+            "補助率（%）": "-",
+            "割引額（円）": "-",
+            "合計補助金額（円）": "-"
+        }])
 
-    with options.infile as infile:
-        try:
-            if options.json_lines:
-                objs = (json.loads(line) for line in infile)
-            else:
-                objs = (json.load(infile),)
+    rows = []
+    for entry in target_models[model]:
+        name, unit_price, rate = entry
+        discount = int(unit_price * rate)
+        amount = int(discount * quantity)
+        rows.append({
+            "型番": model,
+            "補助金名": name,
+            "定価（円）": unit_price,
+            "補助率（%）": int(rate * 100),
+            "割引額（円）": discount,
+            "合計補助金額（円）": amount
+        })
+    return pd.DataFrame(rows)
 
-            if options.outfile is None:
-                out = sys.stdout
-            else:
-                out = options.outfile.open('w', encoding='utf-8')
-            with out as outfile:
-                for obj in objs:
-                    json.dump(obj, outfile, **dump_args)
-                    outfile.write('\n')
-        except ValueError as e:
-            raise SystemExit(e)
+# PDFアップロード処理
+uploaded_file = st.file_uploader("PDF請求書をアップロード（任意）", type="pdf")
+if uploaded_file is not None:
+    st.info("PDFから型番を抽出します。")
+    text = extract_text_from_pdf(uploaded_file)
+    models = extract_models(text)
+    quantity = st.number_input("台数を入力してください（すべての型番に共通）", min_value=1, step=1, value=1)
+    for m in models:
+        df = check_model_table(m, quantity)
+        st.dataframe(df)
 
+# テキスト入力による型番チェック
+input_text = st.text_input("型番を直接入力してください（例：RZRP160BA）")
+quantity_input = st.number_input("台数を入力してください", min_value=1, step=1, value=1)
 
-if __name__ == '__main__':
-    try:
-        main()
-    except BrokenPipeError as exc:
-        sys.exit(exc.errno)
+if input_text:
+    models = extract_models(input_text)
+    for m in models:
+        df = check_model_table(m, quantity_input)
+        st.dataframe(df)

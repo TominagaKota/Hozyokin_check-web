@@ -1,16 +1,13 @@
 import streamlit as st
 import re
+import PyPDF2
 
-# 仮の補助対象型番
+st.title("エアコン型番 補助金判定ツール")
+
 target_models = ["RZRP160BA", "CS-EX280D", "MSZ-ZXV5623S", "AY-L40H", "RAS-X40H2"]
 
-st.title("🧾 補助金対象型番チェックツール")
-st.write("型番を入力してください。複数ある場合はカンマ（,）区切りでOKです。")
-
-input_text = st.text_input("型番を入力（例: RZRP160BA, XYZ123, AY-L40H）")
-
 def extract_models(text):
-    pattern = r"\b[A-Z]{2,5}-?[A-Z0-9]{3,}\b"
+    pattern = r"[A-Z]{2,}-?[A-Z0-9]+"
     return re.findall(pattern, text)
 
 def check_model(model):
@@ -19,8 +16,25 @@ def check_model(model):
     else:
         return f"❌ {model} は補助金対象ではありません。"
 
-if input_text:
-    models = extract_models(input_text)
-    st.write("### 判定結果：")
+# PDFをアップロード
+uploaded_file = st.file_uploader("PDF請求書をアップロードしてください", type="pdf")
+
+if uploaded_file is not None:
+    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+
+    models = extract_models(text)
+    st.write("🔍 検出された型番一覧:")
     for m in models:
         st.write(check_model(m))
+
+# テキスト入力も可能
+input_text = st.text_input("もしくは型番を直接入力してください（例：RZRP160BA）")
+
+if input_text:
+    models = extract_models(input_text)
+    for m in models:
+        st.write(check_model(m))
+

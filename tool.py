@@ -1,14 +1,19 @@
 import streamlit as st
-import json
-import os
+import json, os
+from pathlib import Path
 
-# ←ここを追加
-st.image("assets/tomydenki_pic1.webp", use_column_width=True)
+BASE_DIR = Path(__file__).parent
+img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
+img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # ← 予備（JPGをあとで置く用）
 
-# 以下、今の処理そのまま
+# まずWEBP、無理ならJPGを試す
+if img_path_webp.exists():
+    st.image(str(img_path_webp), use_column_width=True)
+elif img_path_jpg.exists():
+    st.image(str(img_path_jpg), use_column_width=True)
+else:
+    st.warning("バナー画像が見つかりませんでした。assets/ に tomydenki_pic1.webp か tomydenki_hero.jpg を置いてください。")
 
-import json
-import os
 
 # -----------------------
 # 補助金判定関数

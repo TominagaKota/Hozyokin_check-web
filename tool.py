@@ -3,16 +3,16 @@ import json, os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
-img_path_jpg = BASE_DIR / "assets" / "tomydenki_hero.jpg"
+img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
+img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # 予備
 
-
-# まずWEBP、無理ならJPGを試す
+# まずWEBP、無ければJPGを表示
 if img_path_webp.exists():
     st.image(str(img_path_webp), use_column_width=True)
 elif img_path_jpg.exists():
     st.image(str(img_path_jpg), use_column_width=True)
 else:
-    st.warning("バナー画像が見つかりませんでした。assets/ に tomydenki_pic1.webp か tomydenki_hero.jpg を置いてください。")
+    st.warning("バナー画像が見つかりませんでした。assets に tomydenki_pic1.webp か tomydenki_hero.jpg を置いてください。")
 
 
 # -----------------------

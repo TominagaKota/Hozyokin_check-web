@@ -7,56 +7,60 @@ img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
 img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # 予備
 
 # まずWEBP、無ければJPGを表示
-# ==== ヒーロー（画像＋中央キャッチコピー：切れない版）====
-RAW_HERO_URL = "https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/main/assets/tomydenki_hero.jpg"
-
-st.markdown(f"""
+st.markdown("""
 <style>
-.hero {{
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  margin: 8px 18px;
-  box-shadow: 0 6px 22px rgba(0,0,0,.08);
-}}
-.hero-img {{
-  width: 100%;
-  height: auto;   /* ← これでトリミング無し */
-  display: block;
-  filter: saturate(1.02);
-}}
-.hero-title {{
-  position: absolute;
-  left: 50%;
-  bottom: clamp(10px, 3vw, 24px);
-  transform: translateX(-50%);
-  background: rgba(15,23,42,.78);
-  color: #fff;
-  font-weight: 800;
-  line-height: 1.28;
-  padding: .45em .9em;
-  border-radius: 12px;
-  font-size: clamp(18px, 3.8vw, 28px);
-  letter-spacing: .03em;
-  text-align: center;
-  white-space: nowrap;
-}}
-@media (max-width: 640px) {{
-  .hero-title {{
-    white-space: normal;              /* スマホは改行OK */
-    max-width: 92%;
-    padding: .5em .9em;
-    font-size: clamp(16px, 4.6vw, 22px);
-  }}
-}}
-</style>
+/* ---- Header layout ---- */
+.header-bar{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px 0;
+}
+.header-bar .title{
+  font-weight:800;
+  color:#f59e0b; /* 既存のブランド色に合わせるならここ変更可 */
+  font-size:clamp(16px,4.2vw,22px);
+}
+.header-bar .tagline{
+  text-align:center;
+  font-weight:900;
+  letter-spacing:.02em;
+  color:#0b3b66;
+  font-size:clamp(18px,4.8vw,28px);
+  line-height:1.15;
+}
+.header-bar .ext-link a{
+  text-decoration:none;
+  font-weight:700;
+}
 
-<div class="hero">
-  <img src="{RAW_HERO_URL}" alt="富永電機の現場写真" class="hero-img" />
-  <div class="hero-title">補助金も富永電機におまかせ！</div>
-</div>
+/* スマホ：1カラムで見やすく */
+@media (max-width: 600px){
+  .header-bar{grid-template-columns:1fr; row-gap:6px; padding-top:6px;}
+  .header-bar .title{order:1; text-align:left;}
+  .header-bar .tagline{order:2;}
+  .header-bar .ext-link{order:3;}
+}
+
+/* ---- Hero image tune ---- */
+.hero-wrap{position:relative; width:100%; border-radius:14px; overflow:hidden; box-shadow:0 6px 22px rgba(0,0,0,.12); margin:8px 0 18px;}
+.hero-bg{
+  width:100%;
+  aspect-ratio:16/7;         /* 横長ヒーロー */
+  background-size:cover;
+  background-position:75% center; /* 右寄りを見せる */
+  filter:saturate(1.02);
+}
+@media (max-width: 560px){
+  .hero-bg{aspect-ratio:5/3; background-position:84% center;} /* 画像の顔が切れにくいように右寄せ */
+}
+
+/* ヒーロー上の💬等のバッジは非表示 */
+.hero-copy .badge, .hero-copy .bubble { display:none !important; }
+</style>
 """, unsafe_allow_html=True)
-# ==== ヒーロー ここまで ====
+
 
 
 

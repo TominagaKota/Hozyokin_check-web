@@ -10,6 +10,17 @@ st.set_page_config(page_title="富永電機 補助金代行", page_icon="🛠️
 # 画像（ヒーロー）は切らさずに見せるため contain + 横に余白
 st.markdown("""
 <style>
+/* ヒーローが下の要素のクリックを邪魔しないように */
+.hero-wrap,
+.hero-copy { pointer-events: none; }
+
+/* メニューのオーバーレイは閉じてる時はクリック無効 */
+.menu-panel { opacity: 0; pointer-events: none; transition: opacity .2s; }
+.menu-panel.open { opacity: 1; pointer-events: auto; }
+
+/* 下のセクションは通常レイヤーでOK */
+.section { position: relative; z-index: 1; }
+
 :root{ --fg:#0f172a; --fg2:#1f2937; --muted:#475569; --line:#e5e7eb;
        --brand:#ff8a00; --bg:#fafaf9; --radius:14px; }
 html {font-size:16px;}

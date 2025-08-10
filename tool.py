@@ -7,19 +7,73 @@ img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
 img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # 予備
 
 # まずWEBP、無ければJPGを表示
-if img_path_webp.exists():
-    st.image(str(img_path_webp), use_column_width=True)
-elif img_path_jpg.exists():
-    st.image(str(img_path_jpg), use_column_width=True)
-else:
-    # GitHub Raw URLを使用
-    st.image(
-        "https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/11e569bd7283a93eca3392c1eda061c7840855ca/assets/tomydenki_hero.jpg",
-        use_column_width=True
-    )
+# ===== ヒーロー（画像＋中央キャッチコピー） =====
+RAW_HERO_URL = (
+    "https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/"
+    "11e569bd72839eca3392c1eda061c7840855ca/assets/tomydenki_hero.jpg"
+)
 
-else:
-    st.warning("バナー画像が見つかりませんでした。assets に tomydenki_pic1.webp か tomydenki_hero.jpg を置いてください。")
+st.markdown(f"""
+<style>
+/* ヒーロー全体 */
+.hero-wrap {{
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.12);
+  margin: 8px 0 18px;
+}}
+/* 背景画像（アスペクトは自動・スマホでも崩れにくく） */
+.hero-bg {{
+  width: 100%;
+  aspect-ratio: 16/7;         /* 画面比。必要なら 16/6 や 21/9 に調整可 */
+  background-image: url('{RAW_HERO_URL}');
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.02);
+}}
+/* 中央キャッチコピー */
+.hero-copy {{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;         /* 完全中央寄せ */
+  text-align: center;
+  padding: 0 4vw;
+}}
+.hero-copy .line1 {{
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0,0,0,.45);
+  /* 画面幅に応じて自動スケール：最小1.2rem, 推奨3.0vw, 最大2.4rem */
+  font-size: clamp(1.2rem, 3.4vw, 2.4rem);
+  letter-spacing: .06em;
+  line-height: 1.25;
+  display: inline-block;
+  background: linear-gradient(transparent 60%, rgba(255,153,0,.85) 60%);
+  padding: .15em .25em;
+  border-radius: 6px;
+}}
+@media (max-width: 768px) {{
+  .hero-bg {{
+    aspect-ratio: 16/9;        /* スマホは縦を少し広げて見やすく */
+  }}
+  .hero-copy .line1 {{
+    font-size: clamp(1.05rem, 5.2vw, 1.6rem);
+    letter-spacing: .04em;
+  }}
+}}
+</style>
+
+<div class="hero-wrap">
+  <div class="hero-bg"></div>
+  <div class="hero-copy">
+    <span class="line1">補助金も富永電機におまかせ！</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 # -----------------------

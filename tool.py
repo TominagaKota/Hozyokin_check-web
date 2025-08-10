@@ -3,8 +3,8 @@ import json, os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
-img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
-img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # ← 予備（JPGをあとで置く用）
+img_path_jpg = BASE_DIR / "assets" / "tomydenki_hero.jpg"
+
 
 # まずWEBP、無理ならJPGを試す
 if img_path_webp.exists():

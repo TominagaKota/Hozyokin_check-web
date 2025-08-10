@@ -2,6 +2,14 @@ import streamlit as st
 import json
 import os
 
+# ←ここを追加
+st.image("assets/tomydenki_pic1.webp", use_column_width=True)
+
+# 以下、今の処理そのまま
+
+import json
+import os
+
 # -----------------------
 # 補助金判定関数
 # -----------------------

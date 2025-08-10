@@ -142,3 +142,72 @@ if st.button("補助金を判定する"):
         st.markdown(f"### 💰 合計補助金額（{units}台分）：**{total}円**")
     else:
         st.warning("該当する補助金はありませんでした。")
+# ====== 東京都：型番 正式判定 ======
+st.markdown('<div id="tokyo_check" class="container"></div>', unsafe_allow_html=True)
+st.header("東京都：型番で正式判定（家庭用）")
+
+TOKYO_CSV_PATH = "assets/tokyo_models.csv"  # ここにCSVを置く
+
+def normalize_model(s: str) -> str:
+    if s is None:
+        return ""
+    s = str(s)
+    s = unicodedata.normalize("NFKC", s).upper()
+    s = s.replace("–","-").replace("—","-").replace("−","-").replace("ー","-")
+    s = re.sub(r"\s+", "", s)
+    # 括弧の中身（色等）を除去
+    s = re.sub(r"[（(][^）)]*[）)]", "", s)
+    # 末尾の色記号だけ安全に除去（-W/-C/-K/-N/-S/-P/-T/-B/-H）
+    s = re.sub(r"-(W|C|K|N|S|P|T|B|H)$", "", s)
+    return s
+
+@st.cache_data(show_spinner=False)
+def load_tokyo_models():
+    if not os.path.exists(TOKYO_CSV_PATH):
+        return set(), pd.DataFrame()
+    # 文字コードは自動判定 → ダメなら cp932
+    try:
+        df = pd.read_csv(TOKYO_CSV_PATH)
+    except UnicodeDecodeError:
+        df = pd.read_csv(TOKYO_CSV_PATH, encoding="cp932")
+    # 型番っぽい列を抽出（列名に「型」「番」が入るものを優先）
+    cand_cols = [c for c in df.columns if ("型" in c) or ("番" in c)]
+    if not cand_cols:
+        cand_cols = df.columns.tolist()
+    vals = pd.Series(dtype=str)
+    for c in cand_cols:
+        vals = pd.concat([vals, df[c].astype(str)], ignore_index=True)
+    vals = vals.dropna().map(normalize_model)
+    model_set = set([v for v in vals if v])
+    return model_set, df
+
+tokyo_set, tokyo_df = load_tokyo_models()
+
+st.caption(f"登録型番数（正規化後）: {len(tokyo_set)} 件")
+
+user_input = st.text_area("判定したい型番を改行 or カンマ区切りで入力", height=120, placeholder="例）\nRAS–AJ36G\nS22ZTES-W\n... など")
+do_check = st.button("正式判定する")
+
+def split_models(s: str):
+    if not s: return []
+    parts = re.split(r"[\n,、/]+", s)
+    return [p.strip() for p in parts if p.strip()]
+
+if do_check:
+    rows = []
+    for raw in split_models(user_input):
+        norm = normalize_model(raw)
+        if not norm:
+            continue
+        exact = norm in tokyo_set
+        near = difflib.get_close_matches(norm, list(tokyo_set), n=3, cutoff=0.72)
+        rows.append({
+            "入力": raw,
+            "正規化": norm,
+            "正式判定": "○（リスト一致）" if exact else "×（未登録）",
+            "候補（近い順）": " / ".join(near[:3]) if not exact and near else ""
+        })
+    if rows:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True)
+    else:
+        st.info("型番が入力されていません。")

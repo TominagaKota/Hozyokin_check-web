@@ -117,31 +117,6 @@ def check_hojo(apf, kw, category, region_list, units):
 # -----------------------
 # Streamlit アプリ本体
 # -----------------------
-st.title("補助金自動判定ツール")
-
-# 型番から抽出された数値（テスト用の仮データ）
-apf = st.number_input("APF (通年エネルギー消費効率)", value=5.9)
-kw = st.number_input("kW (冷房能力)", value=2.8)
-category = st.selectbox("カテゴリ", ["家庭用", "業務用"])
-region_input = st.text_input("地域（例：東京都江戸川区）", value="東京都 江戸川区")
-units = st.number_input("台数", value=1, min_value=1)
-
-# 地域をスペースや・で区切って配列に
-region_list = region_input.replace("、", " ").replace("・", " ").split()
-
-# ボタン
-if st.button("補助金を判定する"):
-    results, total = check_hojo(apf, kw, category, region_list, units)
-
-    if results:
-        st.write("\n✅ 該当する補助金一覧：")
-        for res in results:
-            st.markdown(f"- **{res['name']}**")
-            st.write(f"　→ 補助金額：{res['補助金額']}円")
-            st.write(f"　→ 重複申請：{res['重複可']}")
-        st.markdown(f"### 💰 合計補助金額（{units}台分）：**{total}円**")
-    else:
-        st.warning("該当する補助金はありませんでした。")
 # ====== 東京都：型番 正式判定 ======
 st.markdown('<div id="tokyo_check" class="container"></div>', unsafe_allow_html=True)
 st.header("東京都：型番で正式判定（家庭用）")

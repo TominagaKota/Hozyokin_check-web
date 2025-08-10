@@ -10,7 +10,7 @@ img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # 予備
 if img_path_webp.exists():
     st.image(str(img_path_webp), use_column_width=True)
 elif img_path_jpg.exists():
-    st.image(str(img_path_jpg), use_column_width=True)
+    st.image("https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/11e569bd7283a93eca3392c1eda061c7840855ca/assets/tomydenki_hero.jpg", use_column_width=True)
 else:
     st.warning("バナー画像が見つかりませんでした。assets に tomydenki_pic1.webp か tomydenki_hero.jpg を置いてください。")
 

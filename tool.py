@@ -7,72 +7,56 @@ img_path_webp = BASE_DIR / "assets" / "tomydenki_pic1.webp"
 img_path_jpg  = BASE_DIR / "assets" / "tomydenki_hero.jpg"  # 予備
 
 # まずWEBP、無ければJPGを表示
-# ===== ヒーロー（画像＋中央キャッチコピー） =====
-RAW_HERO_URL = (
-    "https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/"
-    "11e569bd72839eca3392c1eda061c7840855ca/assets/tomydenki_hero.jpg"
-)
+# ==== ヒーロー（画像＋中央キャッチコピー：切れない版）====
+RAW_HERO_URL = "https://raw.githubusercontent.com/TominagaKota/Hozyokin_check-web/main/assets/tomydenki_hero.jpg"
 
 st.markdown(f"""
 <style>
-/* ヒーロー全体 */
-.hero-wrap {{
+.hero {{
   position: relative;
-  width: 100%;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.12);
-  margin: 8px 0 18px;
+  margin: 8px 18px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.08);
 }}
-/* 背景画像（アスペクトは自動・スマホでも崩れにくく） */
-.hero-bg {{
+.hero-img {{
   width: 100%;
-  aspect-ratio: 16/7;         /* 画面比。必要なら 16/6 や 21/9 に調整可 */
-  background-image: url('{RAW_HERO_URL}');
-  background-size: cover;
-  background-position: center;
+  height: auto;   /* ← これでトリミング無し */
+  display: block;
   filter: saturate(1.02);
 }}
-/* 中央キャッチコピー */
-.hero-copy {{
+.hero-title {{
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;         /* 完全中央寄せ */
-  text-align: center;
-  padding: 0 4vw;
-}}
-.hero-copy .line1 {{
+  left: 50%;
+  bottom: clamp(10px, 3vw, 24px);
+  transform: translateX(-50%);
+  background: rgba(15,23,42,.78);
+  color: #fff;
   font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 2px 14px rgba(0,0,0,.45);
-  /* 画面幅に応じて自動スケール：最小1.2rem, 推奨3.0vw, 最大2.4rem */
-  font-size: clamp(1.2rem, 3.4vw, 2.4rem);
-  letter-spacing: .06em;
-  line-height: 1.25;
-  display: inline-block;
-  background: linear-gradient(transparent 60%, rgba(255,153,0,.85) 60%);
-  padding: .15em .25em;
-  border-radius: 6px;
+  line-height: 1.28;
+  padding: .45em .9em;
+  border-radius: 12px;
+  font-size: clamp(18px, 3.8vw, 28px);
+  letter-spacing: .03em;
+  text-align: center;
+  white-space: nowrap;
 }}
-@media (max-width: 768px) {{
-  .hero-bg {{
-    aspect-ratio: 16/9;        /* スマホは縦を少し広げて見やすく */
-  }}
-  .hero-copy .line1 {{
-    font-size: clamp(1.05rem, 5.2vw, 1.6rem);
-    letter-spacing: .04em;
+@media (max-width: 640px) {{
+  .hero-title {{
+    white-space: normal;              /* スマホは改行OK */
+    max-width: 92%;
+    padding: .5em .9em;
+    font-size: clamp(16px, 4.6vw, 22px);
   }}
 }}
 </style>
 
-<div class="hero-wrap">
-  <div class="hero-bg"></div>
-  <div class="hero-copy">
-    <span class="line1">補助金も富永電機におまかせ！</span>
-  </div>
+<div class="hero">
+  <img src="{RAW_HERO_URL}" alt="富永電機の現場写真" class="hero-img" />
+  <div class="hero-title">補助金も富永電機におまかせ！</div>
 </div>
 """, unsafe_allow_html=True)
+# ==== ヒーロー ここまで ====
 
 
 

@@ -1,0 +1,22 @@
+{
+  "programs": [
+    {
+      "id": "meti_aircon_2025",
+      "name": "省エネ設備導入補助（業務用空調）",
+      "segment": "business",
+      "ministry": "経済産業省",
+      "rate": 0.33,
+      "cap_per_unit": 300000,
+      "cap_per_project": 2000000
+    },
+    {
+      "id": "moe_decarbon_2025",
+      "name": "脱炭素化促進事業（業務用空調）",
+      "segment": "business",
+      "ministry": "環境省",
+      "rate": 0.25,
+      "cap_per_unit": 250000,
+      "cap_per_project": 1500000
+    }
+  ]
+}
